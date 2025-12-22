@@ -4,7 +4,7 @@ pipeline{
     parameters{
 	string(
 	    name: 'SERVICE_NAME',
-	    defaulyValue: 'nginx',
+	    defaultValue: 'nginx',
 	    description: 'service name to monitor'
 	)
     }
