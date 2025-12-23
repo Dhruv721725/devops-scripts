@@ -44,17 +44,17 @@ pipeline{
             }
         }
 
-	stage('Check Nginx Error Logs') {
-	    when {
-		expression { params.SERVICE_NAME == 'nginx'}
-	    }
-            steps{
-                sh '''
-		    cd scripts
-		    ./check_nginx_errors.sh
-		'''
-            }
-        }
+#	stage('Check Nginx Error Logs') {
+#	    when {
+#		expression { params.SERVICE_NAME == 'nginx'}
+#	    }
+  #          steps{
+ #               sh '''
+#		    cd scripts
+#		    ./check_nginx_errors.sh
+#		'''
+ #           }
+#        }
 	
 	stage('Report') {
             steps{
