@@ -86,6 +86,11 @@ pipeline{
 	}
 	always{
 	    echo "Monitoring run complted at ⏱  ${new Date()} "
+	    emailext(
+		subject: "Alert jenkins pipeline is working"
+		body: "Alert for informing about jenkin is executing pipeline"
+		to: "dhruv721725@gmail.com"
+	    )
 	}
     }
 }
