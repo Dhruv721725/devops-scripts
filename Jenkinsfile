@@ -59,6 +59,12 @@ pipeline{
 	    echo "❌ FAILURE: ${SERVICE_NAME} has issues"
 	    echo "🔔 Immediate attention required"
 
+	    sh '''
+		curl -X POST -H 'Content-type:application/json' \
+		--data '{"text":"Failure detected"}' \
+		https://hooks.slack.com/services/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
+	    '''
+
 	    emailext(
 		subject: "🚨 ALERT: ${SERVICE_NAME} DOWN on Jenkins",
 		body: """
@@ -74,11 +80,6 @@ pipeline{
 	}
 	always{
 	    echo "Monitoring run complted at ⏱  ${new Date()} "
-	    emailext(
-		subject: "Alert jenkins pipeline is working",
-		body: "Alert for informing about jenkin is executing pipeline",
-		to: "dhruv721725@gmail.com"
-	    )
 	}
     }
 }
