@@ -6,7 +6,7 @@ pipeline {
     }
 
     environment {
-        SLACK_WEBHOOK = credentials('https://hooks.slack.com/services/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')
+        SLACK_WEBHOOK = credentials('slack-webhook')
     }
 
     stages {
