@@ -75,7 +75,7 @@ pipeline{
 		subject: "🚨 ALERT: ${SERVICE_NAME} DOWN on Jenkins",
 		body: """
 		    <h2>Service Down Alert</h2>
-		    <p><b>Service:</b>${SERVICE_NAME}</p>
+		    <p><b>Service:</b> $SERVICE_NAME</p>
                     <p><b>Job:</b> ${env.JOB_NAME}</p>
                     <p><b>Build:</b> #${env.BUILD_NUMBER}</p>
                     <p><b>Status:</b> FAILED</p>
@@ -87,8 +87,8 @@ pipeline{
 	always{
 	    echo "Monitoring run complted at ⏱  ${new Date()} "
 	    emailext(
-		subject: "Alert jenkins pipeline is working"
-		body: "Alert for informing about jenkin is executing pipeline"
+		subject: "Alert jenkins pipeline is working",
+		body: "Alert for informing about jenkin is executing pipeline",
 		to: "dhruv721725@gmail.com"
 	    )
 	}
