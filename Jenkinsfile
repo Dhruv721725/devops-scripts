@@ -12,15 +12,21 @@ pipeline{
     triggers {
 	cron('*/1 * * * *')
     }
+    environment {
+	SCRIPTS_DIR = "scripts"
+    }
+    options {
+	timeout(time: 2, unit: 'MINUTES')
+    }
 
     stages{
-	stage('Checkout code') {
+	stage('Checkout') {
 	    steps{
 		checkout scm
 	    }		    
 	}
 
-	stage('Prepare scripts') {
+	stage('Prepare') {
             steps{
                 sh '''
 		    cd scripts
@@ -29,16 +35,19 @@ pipeline{
             }
         }
 
-	stage('Check nginx service') {
-	    steps{
-		sh '''
-		    cd scripts
-		    ./check_service.sh nginx
-		'''
-	    }
-	}
-	
+	stage('Health Check') {
+            steps{
+                sh '''
+                    cd $SCRIPTS_DIR
+                    ./check_service.sh ${SERVICE_NAME}
+                '''
+            }
+        }
+
 	stage('Check Nginx Error Logs') {
+	    when {
+		expression { params.SERVICE_NAME == 'nginx'}
+	    }
             steps{
                 sh '''
 		    cd scripts
@@ -60,9 +69,23 @@ pipeline{
 	}
 	failure{
 	    echo "❌ FAILURE: ${SERVICE_NAME} has issues"
+	    echo "🔔 Immediate attention required"
+
+	    emailext(
+		subject: "🚨 ALERT: ${SERVICE_NAME} DOWN on Jenkins",
+		body: """
+		    <h2>Service Down Alert</h2>
+		    <p><b>Service:</b>${SERVICE_NAME}</p>
+                    <p><b>Job:</b> ${env.JOB_NAME}</p>
+                    <p><b>Build:</b> #${env.BUILD_NUMBER}</p>
+                    <p><b>Status:</b> FAILED</p>
+                    <p><a href="${env.BUILD_URL}">View Build Logs</a></p>
+		""",
+		to: "dhruv721725@gmail.com"
+	    )
 	}
 	always{
-	    echo "📌 Pipeline execution finished"
+	    echo "Monitoring run complted at ⏱  ${new Date()} "
 	}
     }
 }
