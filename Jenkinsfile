@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     triggers {
-        cron('*/5 * * * *')
+        cron('*/1 * * * *')
     }
 
     environment {
@@ -19,11 +19,11 @@ pipeline {
                     )
 
                     if (status != 0) {
-                        sh """
+                        sh '''
                         curl -X POST -H 'Content-type: application/json' \
                         --data '{"text":"🚨 *Nginx ERROR detected!*\\nCheck Jenkins job: ${env.JOB_NAME}"}' \
                         $SLACK_WEBHOOK
-                        """
+                        '''
                         error("Nginx error found")
                     }
                 }
@@ -33,11 +33,11 @@ pipeline {
 
     post {
         success {
-            sh """
+            sh '''
             curl -X POST -H 'Content-type: application/json' \
             --data '{"text":"✅ Jenkins check passed. Nginx is healthy."}' \
             $SLACK_WEBHOOK
-            """
+            '''
         }
     }
 }
