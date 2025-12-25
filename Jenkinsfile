@@ -1,44 +1,52 @@
 pipeline {
     agent any
 
-    triggers {
-        cron('*/1 * * * *')
-    }
-
     environment {
-        SLACK_WEBHOOK = credentials('slack-webhook')
+        IMAGE_NAME = "jenkins-nginx"
+        CONTAINER_NAME = "jenkins-nginx-test"
     }
 
     stages {
-        stage('Check Nginx Errors') {
+        stage('Checkout') {
             steps {
-                script {
-                    def status = sh(
-                        script: 'scripts/check_nginx_errors.sh',
-                        returnStatus: true
-                    )
+                checkout scm
+            }
+        }
 
-                    if (status != 0) {
-                        sh '''
-                        curl -X POST -H 'Content-type: application/json' \
-                        --data '{"text":"🚨 *Nginx ERROR detected!*\\nCheck Jenkins job: ${env.JOB_NAME}"}' \
-                        $SLACK_WEBHOOK
-                        '''
-                        error("Nginx error found")
-                    }
-                }
+        stage('Build Docker Image') {
+            steps {
+                sh '''
+                cd docker
+                docker build -t $IMAGE_NAME:$BUILD_NUMBER .
+                '''
+            }
+        }
+
+        stage('Run Container') {
+            steps {
+                sh '''
+                docker rm -f $CONTAINER_NAME || true
+                docker run -d -p 8086:80 --name $CONTAINER_NAME $IMAGE_NAME:$BUILD_NUMBER
+                '''
+            }
+        }
+
+        stage('Verify Container') {
+            steps {
+                sh '''
+                sleep 3
+                curl -f http://localhost:8086
+                '''
             }
         }
     }
 
     post {
-        success {
+        always {
             sh '''
-            curl -X POST -H 'Content-type: application/json' \
-            --data '{"text":"✅ Jenkins check passed. Nginx is healthy."}' \
-            $SLACK_WEBHOOK
+            docker rm -f $CONTAINER_NAME || true
+            docker rmi $IMAGE_NAME:$BUILD_NUMBER || true
             '''
         }
     }
 }
-
