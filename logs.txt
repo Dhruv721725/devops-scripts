@@ -1,0 +1,9 @@
+space=""
+        star="" 
+        for (( j=1; j<=(height-i); j++ )) do 
+            space="$space "
+        done
+        for (( j=1; j<=i; j++ )) do 
+            star="$star* "
+        done
+        echo $space$star
